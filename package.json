@@ -1,0 +1,6 @@
+{
+  "name": "caseprep-ai",
+  "version": "1.0.0",
+  "description": "AI Case Interview Trainer",
+  "engines": { "node": ">=18" }
+}
