@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CasePrep AI</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#0a0f1e;--card:#1a2235;
+  --accent:#378ADD;--accent2:#185FA5;
+  --green:#1D9E75;--amber:#BA7517;--red:#E24B4A;
+  --text:#f0f4ff;--muted:#8b9bb4;--border:#2a3550
+}
+body{background:var(--navy);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;min-height:100vh;overflow-x:hidden}
+.screen{display:none;min-height:100vh}
+.screen.active{display:flex;flex-direction:column}
+
+/* ONBOARD */
+.onboard{align-items:center;justify-content:center;padding:2rem}
+.inner{width:100%;max-width:480px}
+.logo{display:flex;align-items:center;gap:8px;margin-bottom:2.5rem}
+.d1{width:9px;height:9px;border-radius:50%;background:var(--accent)}
+.d2{width:9px;height:9px;border-radius:50%;background:var(--green)}
+.logo span{font-size:15px;font-weight:700;letter-spacing:.04em}
+h1{font-size:26px;font-weight:700;margin-bottom:8px;line-height:1.3}
+.sub{font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:2rem}
+.hr{height:1px;background:var(--border);margin:1.5rem 0}
+.lbl{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px}
+.case-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:1.5rem}
+.cb{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px 6px;cursor:pointer;text-align:center;transition:border-color .15s}
+.cb:hover{border-color:var(--accent)}
+.cb.s{border-color:var(--accent);background:#162033}
+.ci{font-size:20px;margin-bottom:5px}
+.cl{font-size:11px;font-weight:700;color:var(--text)}
+.diff-row{display:flex;gap:8px;margin-bottom:2rem}
+.db{flex:1;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:9px;font-size:11px;font-weight:700;color:var(--muted);cursor:pointer;text-align:center;transition:all .15s}
+.db:hover{color:var(--text)}
+.db.s{border-color:var(--green);color:var(--green);background:#0d1f18}
+.go{width:100%;padding:14px;background:var(--accent2);color:#E6F1FB;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;transition:opacity .15s}
+.go:hover{opacity:.9}
+.go:disabled{opacity:.3;cursor:not-allowed}
+.features{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:2rem}
+.feat{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px 10px;text-align:center}
+.feat-ico{font-size:18px;margin-bottom:5px}
+.feat-lbl{font-size:10px;color:var(--muted);line-height:1.4}
+
+/* INTERVIEW */
+.interview{flex-direction:column}
+.topbar{display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--border);flex-shrink:0}
+.bdc{font-size:10px;font-weight:700;padding:2px 9px;border-radius:20px}
+.bdc.case{background:#162033;border:1px solid var(--accent2);color:#85B7EB}
+.bdc.diff{background:#0d1f18;border:1px solid var(--green);color:#5DCAA5}
+.bdc.tts{font-size:9px}
+.bdc.el{background:#0d1f18;border:1px solid var(--green);color:#5DCAA5}
+.bdc.wb{background:#1a2235;border:1px solid var(--border);color:var(--muted)}
+.pwrap{flex:1;height:3px;background:var(--border);border-radius:2px}
+.pfill{height:100%;background:var(--accent);border-radius:2px;transition:width .4s}
+.tlbl{font-size:10px;color:var(--muted);white-space:nowrap}
+.ebtn{background:transparent;border:1px solid var(--border);color:var(--muted);padding:4px 10px;border-radius:6px;font-size:11px;cursor:pointer}
+.ebtn:hover{border-color:var(--red);color:var(--red)}
+.varea{display:grid;grid-template-columns:1fr 270px;gap:10px;padding:10px 14px;flex:1;min-height:0}
+@media(max-width:640px){.varea{grid-template-columns:1fr;grid-template-rows:auto 1fr}}
+.mainvid{background:var(--card);border-radius:14px;border:1px solid var(--border);position:relative;display:flex;align-items:center;justify-content:center;min-height:260px;overflow:hidden}
+.airing{width:88px;height:88px;border-radius:50%;background:var(--accent2);display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:800;color:#E6F1FB;position:relative}
+.sring{position:absolute;inset:-6px;border-radius:50%;border:3px solid var(--accent);opacity:0}
+.sring.on{animation:sr 1s ease-in-out infinite}
+@keyframes sr{0%,100%{opacity:0;transform:scale(1)}50%{opacity:.9;transform:scale(1.08)}}
+.wavebars{display:flex;align-items:flex-end;gap:3px;height:28px;margin-top:8px}
+.wavebars span{width:4px;border-radius:2px;background:var(--accent);opacity:0;transition:opacity .2s}
+.wavebars span.on{opacity:1}
+.ai-lbl{font-size:13px;font-weight:700;margin-top:10px}
+.ai-sub{font-size:11px;color:var(--muted);margin-top:2px}
+.livebdg{position:absolute;bottom:10px;left:10px;background:rgba(10,15,30,.88);padding:3px 9px;border-radius:20px;font-size:10px;color:var(--muted);display:flex;align-items:center;gap:4px}
+.ldot{width:5px;height:5px;border-radius:50%;background:var(--green);animation:blink 1.5s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+.sidep{display:flex;flex-direction:column;gap:8px;min-height:0}
+.uvbox{background:var(--card);border-radius:10px;border:1px solid var(--border);overflow:hidden;position:relative;height:155px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+#uvid{width:100%;height:100%;object-fit:cover;border-radius:10px;display:none}
+.uph{display:flex;flex-direction:column;align-items:center;gap:6px}
+.uav{width:44px;height:44px;border-radius:50%;background:#1D3A2A;border:1px solid var(--green);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#5DCAA5}
+.micv{display:flex;align-items:flex-end;gap:2px;height:18px}
+.micv span{width:3px;background:var(--green);border-radius:2px;transition:height .07s}
+.uvlbl{position:absolute;bottom:6px;left:8px;background:rgba(10,15,30,.88);padding:2px 7px;border-radius:20px;font-size:10px;color:var(--muted)}
+.bubbox{background:var(--card);border-radius:10px;border:1px solid var(--border);padding:10px;flex-shrink:0}
+.bublbl{font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px}
+.bubtxt{font-size:12px;color:var(--text);line-height:1.6;min-height:48px}
+.trbox{background:var(--card);border-radius:10px;border:1px solid var(--border);flex:1;overflow-y:auto;padding:10px;min-height:60px}
+.trtit{font-size:9px;font-weight:700;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.06em}
+.trmsg{font-size:11px;line-height:1.6;margin-bottom:6px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+.trmsg:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
+.trwho{font-weight:800;font-size:10px;margin-bottom:1px}
+.trwho.ai{color:var(--accent)}
+.trwho.user{color:var(--green)}
+.trtxt{color:var(--text)}
+.ctrlbar{display:flex;align-items:center;gap:8px;padding:10px 14px;border-top:1px solid var(--border);flex-shrink:0}
+.ibtn{width:44px;height:44px;border-radius:50%;border:1px solid var(--border);background:var(--card);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text);flex-shrink:0;transition:all .15s}
+.ibtn.on{background:var(--accent2);border-color:var(--accent)}
+.ibtn.off{background:#3a1515;border-color:var(--red)}
+.ibtn svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.6}
+.rbtn{flex:1;padding:11px 16px;background:var(--green);color:#fff;border:none;border-radius:22px;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;user-select:none;-webkit-user-select:none;transition:background .12s}
+.rbtn.rec{background:var(--red)}
+.rbtn:disabled{opacity:.4;cursor:not-allowed}
+.rdot{width:7px;height:7px;border-radius:50%;background:#fff;animation:blink .7s infinite}
+.hbtn{background:transparent;border:1px solid var(--border);color:var(--muted);padding:8px 12px;border-radius:20px;font-size:11px;cursor:pointer;white-space:nowrap}
+.hbtn:hover{border-color:var(--amber);color:var(--amber)}
+.statbar{font-size:11px;color:var(--muted);text-align:center;padding:5px;flex-shrink:0;min-height:24px}
+
+/* SCORE */
+.scorescreen{padding:1.5rem;overflow-y:auto}
+.sch{text-align:center;margin-bottom:1.5rem}
+.sch h2{font-size:20px;font-weight:800;margin-bottom:5px}
+.rw{width:100px;height:100px;margin:0 auto .8rem;position:relative;display:flex;align-items:center;justify-content:center}
+.rw svg{position:absolute;inset:0;transform:rotate(-90deg)}
+.rbg{fill:none;stroke:var(--border);stroke-width:8}
+.rfill{fill:none;stroke:var(--accent);stroke-width:8;stroke-linecap:round;stroke-dasharray:251;stroke-dashoffset:251;transition:stroke-dashoffset 1.2s ease}
+.rnum{font-size:24px;font-weight:800;position:relative;z-index:1}
+.rmax{font-size:11px;color:var(--muted)}
+.dgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:1rem}
+.dc{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px}
+.dn{font-size:10px;color:var(--muted);margin-bottom:3px}
+.dv{font-size:20px;font-weight:800}
+.dbar{height:3px;background:var(--border);border-radius:2px;margin-top:6px}
+.dfill{height:100%;border-radius:2px}
+.fbc{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:.9rem;margin-bottom:.8rem}
+.fbs{margin-bottom:10px}
+.fbs:last-child{margin-bottom:0}
+.fbl{font-size:9px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}
+.fbt{font-size:12px;color:var(--text);line-height:1.7}
+.rstbtn{width:100%;padding:13px;background:var(--accent2);color:#E6F1FB;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer}
+.rstbtn:hover{opacity:.9}
+.dots{display:inline-flex;gap:3px;align-items:center}
+.dots span{width:4px;height:4px;border-radius:50%;background:var(--accent);animation:dt 1.2s infinite}
+.dots span:nth-child(2){animation-delay:.2s}
+.dots span:nth-child(3){animation-delay:.4s}
+@keyframes dt{0%,80%,100%{transform:scale(.5);opacity:.3}40%{transform:scale(1);opacity:1}}
+</style>
+</head>
+<body>
+
+<!-- ONBOARD -->
+<div id="s0" class="screen active onboard">
+<div class="inner">
+  <div class="logo"><div class="d1"></div><div class="d2"></div><span>CasePrep AI</span></div>
+  <h1>Allenati per il colloquio di consulenza</h1>
+  <p class="sub">Sessioni simulate con un AI interviewer vocale. Feedback in tempo reale su framing, struttura, calcoli e comunicazione.</p>
+
+  <div class="features">
+    <div class="feat"><div class="feat-ico">🎙️</div><div class="feat-lbl">Interazione vocale</div></div>
+    <div class="feat"><div class="feat-ico">🤖</div><div class="feat-lbl">AI interviewer</div></div>
+    <div class="feat"><div class="feat-ico">📊</div><div class="feat-lbl">Score dettagliato</div></div>
+  </div>
+
+  <div class="hr"></div>
+  <div class="lbl">Tipo di caso</div>
+  <div class="case-grid">
+    <div class="cb" data-t="market_sizing" onclick="sc(this)"><div class="ci">📐</div><div class="cl">Market Sizing</div></div>
+    <div class="cb" data-t="go_to_market" onclick="sc(this)"><div class="ci">🚀</div><div class="cl">Go-to-Market</div></div>
+    <div class="cb" data-t="profitability" onclick="sc(this)"><div class="ci">📉</div><div class="cl">Profitability</div></div>
+    <div class="cb" data-t="ma" onclick="sc(this)"><div class="ci">🤝</div><div class="cl">M&amp;A</div></div>
+    <div class="cb" data-t="pricing" onclick="sc(this)"><div class="ci">💰</div><div class="cl">Pricing</div></div>
+    <div class="cb" data-t="operations" onclick="sc(this)"><div class="ci">⚙️</div><div class="cl">Operations</div></div>
+  </div>
+  <div class="lbl">Difficoltà</div>
+  <div class="diff-row">
+    <div class="db s" data-d="junior" onclick="sd(this)">Junior</div>
+    <div class="db" data-d="senior" onclick="sd(this)">Senior</div>
+    <div class="db" data-d="partner" onclick="sd(this)">Partner</div>
+  </div>
+  <button class="go" id="gobtn" onclick="go()" disabled>Inizia la sessione →</button>
+</div>
+</div>
+
+<!-- INTERVIEW -->
+<div id="s1" class="screen interview">
+  <div class="topbar">
+    <span class="bdc case" id="bccase">—</span>
+    <span class="bdc diff" id="bcdiff">—</span>
+    <span class="bdc wb" id="bctts">TTS</span>
+    <div class="pwrap"><div class="pfill" id="pf" style="width:0%"></div></div>
+    <span class="tlbl" id="tlbl">0/6</span>
+    <button class="ebtn" onclick="endEarly()">Termina</button>
+  </div>
+  <div class="varea">
+    <div class="mainvid">
+      <div style="display:flex;flex-direction:column;align-items:center">
+        <div class="airing"><div class="sring" id="sr"></div>AI</div>
+        <div class="wavebars" id="wv">
+          <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+        </div>
+        <div class="ai-lbl">Interviewer</div>
+        <div class="ai-sub">Esperto di business case</div>
+      </div>
+      <div class="livebdg"><div class="ldot"></div>Live</div>
+    </div>
+    <div class="sidep">
+      <div class="uvbox">
+        <video id="uvid" autoplay muted playsinline></video>
+        <div class="uph" id="uph">
+          <div class="uav">TU</div>
+          <div class="micv" id="micv"><span style="height:3px"></span><span style="height:8px"></span><span style="height:5px"></span><span style="height:10px"></span><span style="height:4px"></span></div>
+        </div>
+        <div class="uvlbl">Tu</div>
+      </div>
+      <div class="bubbox">
+        <div class="bublbl">Interviewer dice</div>
+        <div class="bubtxt" id="btxt"><span class="dots"><span></span><span></span><span></span></span></div>
+      </div>
+      <div class="trbox" id="trbox"><div class="trtit">Trascrizione</div></div>
+    </div>
+  </div>
+  <div class="statbar" id="sb">Inizializzazione...</div>
+  <div class="ctrlbar">
+    <div class="ibtn on" id="bmic" onclick="togMic()">
+      <svg viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 1 3 3v7a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22" stroke-linecap="round"/></svg>
+    </div>
+    <div class="ibtn on" id="bcam" onclick="togCam()">
+      <svg viewBox="0 0 24 24"><path d="m15 10 4.553-2.069A1 1 0 0 1 21 8.82v6.362a1 1 0 0 1-1.447.894L15 14"/><rect x="3" y="6" width="12" height="12" rx="2"/></svg>
+    </div>
+    <button class="rbtn" id="rbtn" onmousedown="startRec()" onmouseup="stopRec()" ontouchstart="startRec(event)" ontouchend="stopRec()">
+      <span id="rico"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" stroke="none"><circle cx="12" cy="12" r="8"/></svg></span>
+      <span id="rlbl">Tieni premuto per parlare</span>
+    </button>
+    <button class="hbtn" onclick="hint()">💡 Suggerimento</button>
+  </div>
+</div>
+
+<!-- SCORE -->
+<div id="s2" class="screen scorescreen">
+  <div class="sch">
+    <div class="rw">
+      <svg viewBox="0 0 90 90" width="100" height="100"><circle class="rbg" cx="45" cy="45" r="40"/><circle class="rfill" id="rfill" cx="45" cy="45" r="40"/></svg>
+      <div><div class="rnum" id="rnum">—</div><div class="rmax">/100</div></div>
+    </div>
+    <h2 id="stit">Valutazione</h2>
+    <p style="font-size:13px;color:var(--muted)" id="ssub"></p>
+  </div>
+  <div class="dgrid" id="dgrid"></div>
+  <div class="fbc" id="fbc"><div style="color:var(--muted);font-size:12px">Caricamento feedback...</div></div>
+  <button class="rstbtn" onclick="reset()">Nuova sessione</button>
+</div>
+
+<script>
+const CASES={market_sizing:"Market Sizing",go_to_market:"Go-to-Market",profitability:"Profitability",ma:"M&A",pricing:"Pricing",operations:"Operations"};
+const EL_VOICES=["N2lVS1w4EtoT3dr4eOWO","onwK4e9ZLuTAKqWW03F9","ErXwobaYiN019PkySvjV"];
+
+let caseType=null,diff="junior";
+let hist=[],turns=0,MAX=6,ended=false;
+let ms=null,recog=null,isRec=false,micOn=true,camOn=true;
+let synth=window.speechSynthesis,speaking=false,curAudio=null;
+let elAvailable=null;
+
+function sc(el){document.querySelectorAll('.cb').forEach(c=>c.classList.remove('s'));el.classList.add('s');caseType=el.dataset.t;$('gobtn').disabled=false;}
+function sd(el){document.querySelectorAll('.db').forEach(b=>b.classList.remove('s'));el.classList.add('s');diff=el.dataset.d;}
+function $(id){return document.getElementById(id);}
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));$(id).classList.add('active');}
+
+async function go(){
+  if(!caseType)return;
+  show('s1');
+  $('bccase').textContent=CASES[caseType];
+  $('bcdiff').textContent=diff.charAt(0).toUpperCase()+diff.slice(1);
+  hist=[];turns=0;ended=false;
+  $('trbox').innerHTML='<div class="trtit">Trascrizione</div>';
+  setBub('<span class="dots"><span></span><span></span><span></span></span>');
+  updProg();stat('Controllo servizi...');
+
+  /* Check if ElevenLabs is configured server-side */
+  elAvailable=await checkEL();
+  const tb=$('bctts');
+  if(elAvailable){tb.textContent='ElevenLabs';tb.className='bdc el';}
+  else{tb.textContent='Browser TTS';tb.className='bdc wb';}
+
+  stat('Richiesta accesso a webcam e microfono...');
+  await initMedia();
+  setupRec();
+  stat("Connessione all'AI...");
+  const r=await callAI(sys(),"Presentati brevemente (1 frase secca) e dai subito il caso. Solo testo parlato italiano, zero markdown.");
+  tr('ai',r);await speak(r);
+}
+
+async function checkEL(){
+  try{
+    const r=await fetch('/api/tts',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:'test',voiceId:EL_VOICES[0]})});
+    return r.headers.get('content-type')?.includes('audio');
+  }catch(e){return false;}
+}
+
+async function initMedia(){
+  try{
+    ms=await navigator.mediaDevices.getUserMedia({video:{width:{ideal:640},height:{ideal:480},facingMode:'user'},audio:{echoCancellation:true,noiseSuppression:true}});
+    const v=$('uvid');v.srcObject=ms;v.style.display='block';
+    $('uph').style.display='none';
+    micVis(ms);stat('Webcam e microfono attivi');
+  }catch(e){
+    stat('Webcam non disponibile ('+e.name+')');
+    try{ms=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true}});micVis(ms);stat('Solo audio attivo');}
+    catch(e2){stat('Nessun dispositivo audio — scrivi le risposte');}
+  }
+}
+
+function micVis(stream){
+  try{
+    const ctx=new(window.AudioContext||window.webkitAudioContext)();
+    const src=ctx.createMediaStreamSource(stream),ana=ctx.createAnalyser();
+    ana.fftSize=128;src.connect(ana);
+    const bars=document.querySelectorAll('#micv span');
+    (function t(){const d=new Uint8Array(ana.frequencyBinCount);ana.getByteFrequencyData(d);bars.forEach((b,i)=>b.style.height=Math.max(2,Math.round((d[i*4]||0)/255*18))+'px');requestAnimationFrame(t);})();
+  }catch(e){}
+}
+
+function setupRec(){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){stat('Speech API non disponibile — usa la tastiera');addKb();return;}
+  recog=new SR();recog.lang='it-IT';recog.continuous=false;recog.interimResults=false;recog.maxAlternatives=1;
+  recog.onresult=async e=>{
+    const txt=Array.from(e.results).map(r=>r[0].transcript).join(' ').trim();
+    if(!txt||ended)return;
+    stopRecUI();tr('user',txt);hist.push({role:'user',content:txt});
+    turns++;updProg();
+    setBub('<span class="dots"><span></span><span></span><span></span></span>');
+    stat('AI sta elaborando...');
+    const extra=turns>=MAX?'\n\n[Ultimo scambio: concludi il caso ringraziando brevemente]':'';
+    const reply=await callAI(sys(),txt+extra);
+    hist.push({role:'assistant',content:reply});tr('ai',reply);
+    await speak(reply);
+    if(turns>=MAX){ended=true;setTimeout(()=>evalCase(),2000);}
+  };
+  recog.onspeechend=()=>{try{recog.stop();}catch(_){}};
+  recog.onerror=e=>{stopRecUI();if(e.error!=='aborted'&&e.error!=='no-speech')stat('Errore mic: '+e.error);};
+  recog.onend=()=>stopRecUI();
+}
+
+function addKb(){
+  const inp=document.createElement('input');
+  inp.placeholder='Scrivi e premi Invio...';
+  inp.style.cssText='flex:1;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:13px;color:var(--text)';
+  inp.onkeydown=async e=>{
+    if(e.key!=='Enter'||!inp.value.trim()||ended)return;
+    const txt=inp.value.trim();inp.value='';
+    tr('user',txt);hist.push({role:'user',content:txt});turns++;updProg();
+    setBub('<span class="dots"><span></span><span></span><span></span></span>');
+    const extra=turns>=MAX?'\n\n[Ultimo scambio: concludi il caso]':'';
+    const reply=await callAI(sys(),txt+extra);
+    hist.push({role:'assistant',content:reply});tr('ai',reply);
+    await speak(reply);
+    if(turns>=MAX){ended=true;setTimeout(()=>evalCase(),2000);}
+  };
+  $('rbtn').replaceWith(inp);inp.focus();
+}
+
+function startRec(e){
+  if(e)e.preventDefault();
+  if(ended||!recog)return;
+  if(speaking)stopAudio();
+  isRec=true;
+  $('rbtn').classList.add('rec');$('rlbl').textContent='Rilascia per inviare...';
+  $('rico').innerHTML='<span class="rdot"></span>';
+  stat('In ascolto...');
+  try{recog.abort();}catch(_){}
+  setTimeout(()=>{try{recog.start();}catch(e){stat('Errore avvio mic: '+e.message);}},80);
+}
+function stopRec(){if(!isRec)return;isRec=false;try{recog&&recog.stop();}catch(_){}stopRecUI();}
+function stopRecUI(){
+  isRec=false;const b=$('rbtn');if(!b)return;
+  b.classList.remove('rec');$('rlbl').textContent='Tieni premuto per parlare';
+  $('rico').innerHTML='<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" stroke="none"><circle cx="12" cy="12" r="8"/></svg>';
+}
+function togMic(){micOn=!micOn;if(ms)ms.getAudioTracks().forEach(t=>t.enabled=micOn);$('bmic').className='ibtn '+(micOn?'on':'off');}
+function togCam(){camOn=!camOn;if(ms)ms.getVideoTracks().forEach(t=>t.enabled=camOn);$('bcam').className='ibtn '+(camOn?'on':'off');$('uvid').style.opacity=camOn?1:.2;}
+
+async function speak(text){
+  stopAudio();setBub(text);setSpeaking(true);
+  if(elAvailable){await speakEL(text);}
+  else{await speakBrowser(text);}
+}
+
+async function speakEL(text){
+  stat('Generazione voce...');
+  for(const vId of EL_VOICES){
+    try{
+      const res=await fetch('/api/tts',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text,voiceId:vId})});
+      if(!res.ok||!res.headers.get('content-type')?.includes('audio')){continue;}
+      const blob=await res.blob();
+      const url=URL.createObjectURL(blob);
+      await playAudio(url);return;
+    }catch(e){console.warn('EL error',e);}
+  }
+  setSpeaking(false);await speakBrowser(text);
+}
+
+function playAudio(url){
+  return new Promise(resolve=>{
+    curAudio=new Audio(url);
+    curAudio.oncanplaythrough=()=>{stat('Interviewer sta parlando...');animWave(true);curAudio.play().catch(()=>resolve());};
+    curAudio.onended=()=>{speaking=false;setSpeaking(false);animWave(false);stat('Il tuo turno — tieni premuto per parlare');URL.revokeObjectURL(url);resolve();};
+    curAudio.onerror=()=>{speaking=false;setSpeaking(false);animWave(false);URL.revokeObjectURL(url);resolve();};
+  });
+}
+
+function speakBrowser(text){
+  return new Promise(resolve=>{
+    if(!synth){setSpeaking(false);resolve();return;}
+    synth.cancel();
+    const u=new SpeechSynthesisUtterance(text);
+    u.lang='it-IT';u.rate=0.90;u.pitch=0.92;
+    const sv=()=>{const vs=synth.getVoices();const it=vs.find(v=>v.lang==='it-IT'&&/alice|google/i.test(v.name))||vs.find(v=>v.lang==='it-IT')||vs.find(v=>v.lang.startsWith('it'));if(it)u.voice=it;};
+    sv();if(synth.getVoices().length===0)synth.onvoiceschanged=sv;
+    u.onstart=()=>{stat('Interviewer sta parlando...');animWave(true);};
+    u.onend=()=>{speaking=false;setSpeaking(false);animWave(false);stat('Il tuo turno — tieni premuto per parlare');resolve();};
+    u.onerror=()=>{speaking=false;setSpeaking(false);animWave(false);resolve();};
+    synth.speak(u);
+    setTimeout(()=>{try{if(synth.speaking)synth.resume();}catch(_){}},200);
+  });
+}
+
+function stopAudio(){
+  if(curAudio){curAudio.pause();curAudio.src='';curAudio=null;}
+  if(synth)synth.cancel();
+  speaking=false;setSpeaking(false);animWave(false);
+}
+function setSpeaking(on){speaking=on;$('sr').classList.toggle('on',on);}
+function animWave(on){
+  const bars=document.querySelectorAll('#wv span');
+  if(on){
+    bars.forEach(b=>{b.classList.add('on');(function p(){if(!speaking)return;b.style.height=Math.max(4,Math.round(Math.random()*22))+'px';setTimeout(p,90+Math.random()*70);})();});
+  }else{
+    bars.forEach(b=>{b.classList.remove('on');b.style.height='4px';});
+  }
+}
+
+function setBub(html){$('btxt').innerHTML=html;}
+function stat(t){$('sb').textContent=t;}
+function tr(role,text){
+  const box=$('trbox'),d=document.createElement('div');d.className='trmsg';
+  d.innerHTML=`<div class="trwho ${role}">${role==='ai'?'Interviewer':'Tu'}</div><div class="trtxt">${text}</div>`;
+  box.appendChild(d);box.scrollTop=box.scrollHeight;
+}
+function updProg(){$('pf').style.width=Math.min(turns/MAX*100,100)+'%';$('tlbl').textContent=turns+'/'+MAX;}
+
+async function hint(){
+  if(ended)return;stopAudio();
+  setBub('<span class="dots"><span></span><span></span><span></span></span>');
+  stat('Preparazione suggerimento...');
+  const h=await callAI(sys(),"Il candidato chiede aiuto. Una sola domanda guida socratica, non la risposta. Max 2 frasi.");
+  tr('ai',h);await speak(h);
+}
+function endEarly(){ended=true;evalCase();}
+
+function sys(){
+  const dm={junior:"candidato junior (primo anno)",senior:"candidato con 3-5 anni di esperienza",partner:"candidato per ruolo dirigenziale"};
+  return `Sei un interviewer esperto e neutrale per colloqui di consulenza strategica. Non menzionare mai nomi di società specifiche. Conduci il colloquio in italiano. Caso: ${CASES[caseType]}. Livello: ${dm[diff]}. Sii conciso (max 3 frasi per risposta), professionale ma non rigido. Una domanda alla volta. Valuta silenziosamente framing, struttura, calcoli e comunicazione. Dopo ${MAX} scambi concludi. Solo testo parlato, zero markdown.`;
+}
+
+async function callAI(system,userMsg){
+  const msgs=[...hist];
+  if(userMsg)msgs.push({role:'user',content:userMsg});
+  if(!msgs.length)msgs.push({role:'user',content:'Inizia'});
+  try{
+    const r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({system,messages:msgs})});
+    const d=await r.json();
+    return d.error?'Errore: '+d.error:d.text||'...';
+  }catch(e){return 'Errore di rete: '+e.message;}
+}
+
+async function evalCase(){
+  show('s2');
+  const p=`Sei un valutatore di colloqui per consulenza strategica. Non citare mai società specifiche.
+Caso: ${CASES[caseType]}, Livello: ${diff}
+${hist.map(m=>(m.role==='user'?'CANDIDATO: ':'INTERVIEWER: ')+m.content).join('\n')}
+Rispondi SOLO con JSON valido:
+{"overall":72,"framing":75,"struttura":70,"calcoli":65,"comunicazione":80,"titolo":"Buona prestazione","sintesi":"Frase breve","punti_forza":"2-3 frasi","aree_miglioramento":"2-3 frasi","consiglio":"Un consiglio concreto"}`;
+  try{
+    const r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:[{role:'user',content:p}],maxTokens:700})});
+    const d=await r.json();
+    const s=JSON.parse((d.text||'{}').replace(/```json|```/g,'').trim());
+    renderScore(s);
+  }catch(e){$('fbc').innerHTML='<div style="color:var(--muted);font-size:12px">Errore nel calcolo.</div>';}
+}
+
+function renderScore(s){
+  const ov=s.overall||0;
+  $('stit').textContent=s.titolo||'Sessione completata';$('ssub').textContent=s.sintesi||'';$('rnum').textContent=ov;
+  const c=2*Math.PI*40;
+  setTimeout(()=>{$('rfill').style.strokeDasharray=c;$('rfill').style.strokeDashoffset=c-(c*ov/100);},120);
+  const dims=[{k:'framing',n:'Framing',c:'#378ADD'},{k:'struttura',n:'Struttura',c:'#1D9E75'},{k:'calcoli',n:'Calcoli',c:'#EF9F27'},{k:'comunicazione',n:'Comunicazione',c:'#7F77DD'}];
+  const g=$('dgrid');g.innerHTML='';
+  dims.forEach(d=>{const v=s[d.k]||0;const el=document.createElement('div');el.className='dc';el.innerHTML=`<div class="dn">${d.n}</div><div class="dv" style="color:${d.c}">${v}<span style="font-size:11px;color:var(--muted)">/100</span></div><div class="dbar"><div class="dfill" style="width:${v}%;background:${d.c}"></div></div>`;g.appendChild(el);});
+  $('fbc').innerHTML=`<div class="fbs"><div class="fbl">Punti di forza</div><div class="fbt">${s.punti_forza||''}</div></div><div class="fbs"><div class="fbl">Aree di miglioramento</div><div class="fbt">${s.aree_miglioramento||''}</div></div><div class="fbs"><div class="fbl">Consiglio per il prossimo caso</div><div class="fbt">${s.consiglio||''}</div></div>`;
+}
+
+function reset(){
+  stopAudio();if(ms)ms.getTracks().forEach(t=>t.stop());
+  ms=null;hist=[];turns=0;ended=false;caseType=null;
+  $('uvid').style.display='none';$('uph').style.display='flex';
+  document.querySelectorAll('.cb').forEach(c=>c.classList.remove('s'));
+  document.querySelectorAll('.db').forEach(b=>b.classList.remove('s'));
+  document.querySelector('[data-d="junior"]').classList.add('s');
+  diff='junior';$('gobtn').disabled=true;show('s0');
+}
+</script>
+</body>
+</html>
